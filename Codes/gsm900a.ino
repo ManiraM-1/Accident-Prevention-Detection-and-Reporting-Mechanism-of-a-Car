@@ -1,5 +1,7 @@
-#include <SoftwareSerial.h>
+//**Use this code, to check and understand the working of your SIM900A module**//
+//**Maniram Tatipamula**//
 
+#include <SoftwareSerial.h>
 SoftwareSerial mySerial(10,11);
 
 void setup()
