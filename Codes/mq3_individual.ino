@@ -1,3 +1,5 @@
+//**This is the code for the MQ3 sensor when interfaced with arduino and the readings are shown in the LCD display connected with I2C Converter**//
+//** Maniram Tatipamula**//
 
 #include <Wire.h> //library that help to communicate with I2C
 #include <LiquidCrystal_I2C.h> 
@@ -26,7 +28,7 @@ void loop()
       lcd.setCursor(0,1);
       lcd.print("Content Detected");
       alcBuzz();
-      
+      //**This code belongs to Maniram Tatipamula**//
  }
 
    else{
