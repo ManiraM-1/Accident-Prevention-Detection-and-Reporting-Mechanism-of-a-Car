@@ -1,0 +1,282 @@
+
+# bluetooth_controls + eye_blink + mq3
+
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include<SoftwareSerial.h>
+
+#define in1 3 //L298n Motor Driver pins.
+#define in2 4
+#define in3 5
+#define in4 6
+#define LED 2
+#define eyeBlinkPin 7   // Pin where the eye blink sensor is connected
+#define buzzerPin 8     // Pin for the buzzer
+
+bool eyesClosed = false;
+unsigned long eyesClosedStartTime = 0;
+unsigned long eyesClosedDuration = 0;
+
+SoftwareSerial mySerial(2, 3); // RX, TX for GSM module
+SoftwareSerial gps(10, 11);    // RX, TX for GPS module
+
+LiquidCrystal_I2C lcd(0x27, 16, 2); // I2C address 0x27, 16 column and 2 rows
+
+// Define pins for the alcohol sensor (MQ-3)
+const int MQ3 = A0;
+bool isAlcoholDetected = false;
+
+int command; //Int to store app command state.
+int Speed = 204; // 0 - 255.
+int Speedsec;
+int buttonState = 0;
+int lastButtonState = 0;
+int Turnradius = 0; //Set the radius of a turn, 0 - 255 Note:the robot will malfunction if this is higher than int Speed.
+int brakeTime = 45;
+int brkonoff = 1; //1 for the electronic braking system, 0 for normal.
+void setup() {
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  pinMode(LED, OUTPUT); //Set the LED pin.
+  // Initialize the pins for the eye sensor and buzzer
+  pinMode(eyeBlinkPin, INPUT);
+  pinMode(buzzerPin, OUTPUT);
+    // Initialize sensors, modules, and pins
+  pinMode(MQ3, INPUT);
+
+  lcd.init();
+  lcd.backlight();
+  lcd.begin(16, 2);
+  
+  
+  Serial.begin(9600);  //Set the baud rate to your Bluetooth module.
+  mySerial.begin(9600);
+  gps.begin(9600);
+
+
+  // ... (other pin mode initializations)
+  // ... (other setup code)
+  
+}
+
+void loop() {
+
+  // Check for alcohol detection
+  isAlcoholDetected = checkAlcohol();
+
+  if (isAlcoholDetected) {
+    handleAlcoholDetection();
+  }
+
+  // ... (other parts of the loop for temperature, eye blink, etc.)
+
+  // ... (Bluetooth car control code)
+ 
+  if (Serial.available() > 0) {
+    command = Serial.read();
+    Stop(); //Initialize with motors stoped.
+    switch (command) {
+      case 'F':
+        forward();
+        break;
+      case 'B':
+        back();
+        break;
+      case 'L':
+        left();
+        break;
+      case 'R':
+        right();
+        break;
+      case 'G':
+        forwardleft();
+        break;
+      case 'I':
+        forwardright();
+        break;
+      case 'H':
+        backleft();
+        break;
+      case 'J':
+        backright();
+        break;
+      case '0':
+        Speed = 100;
+        break;
+      case '1':
+        Speed = 140;
+        break;
+      case '2':
+        Speed = 153;
+        break;
+      case '3':
+        Speed = 165;
+        break;
+      case '4':
+        Speed = 178;
+        break;
+      case '5':
+        Speed = 191;
+        break;
+      case '6':
+        Speed = 204;
+        break;
+      case '7':
+        Speed = 216;
+        break;
+      case '8':
+        Speed = 229;
+        break;
+      case '9':
+        Speed = 242;
+        break;
+      case 'q':
+        Speed = 255;
+        break;
+    }
+    Speedsec = Turnradius;
+    if (brkonoff == 1) {
+      brakeOn();
+    } else {
+      brakeOff();
+    }
+  }
+
+  //Now, I'm Wriring the code for the Eye blink sensor
+  
+   int eyeBlinkState = digitalRead(eyeBlinkPin);
+  
+  if (eyeBlinkState == HIGH) {
+    // Eyes are open
+    eyesClosed = false;
+  } else {
+    // Eyes are closed
+    if (!eyesClosed) {
+      eyesClosedStartTime = millis();  // Record the time when the eyes first close
+      eyesClosed = true;
+    }
+    eyesClosedDuration = millis() - eyesClosedStartTime;
+
+    if (eyesClosedDuration > 4000) {
+      // Eyes have been closed for more than 4 seconds
+      stopCar();  // Implement your car stopping function
+      activateBuzzer();
+    }
+  }
+
+  // Other code for handling Bluetooth commands and motor control
+}
+
+void forward() {
+  analogWrite(in1, Speed);
+  analogWrite(in3, Speed);
+}
+
+void back() {
+  analogWrite(in2, Speed);
+  analogWrite(in4, Speed);
+}
+
+void left() {
+  analogWrite(in3, Speed);
+  analogWrite(in2, Speed);
+}
+
+void right() {
+  analogWrite(in4, Speed);
+  analogWrite(in1, Speed);
+}
+void forwardleft() {
+  analogWrite(in1, Speedsec);
+  analogWrite(in3, Speed);
+}
+void forwardright() {
+  analogWrite(in1, Speed);
+  analogWrite(in3, Speedsec);
+}
+void backright() {
+  analogWrite(in2, Speed);
+  analogWrite(in4, Speedsec);
+}
+void backleft() {
+  analogWrite(in2, Speedsec);
+  analogWrite(in4, Speed);
+}
+
+void Stop() {
+  analogWrite(in1, 0);
+  analogWrite(in2, 0);
+  analogWrite(in3, 0);
+  analogWrite(in4, 0);
+}
+
+void brakeOn() {
+  //Here's the future use: an electronic braking system!
+  // read the pushbutton input pin:
+  buttonState = command;
+  // compare the buttonState to its previous state
+  if (buttonState != lastButtonState) {
+    // if the state has changed, increment the counter
+    if (buttonState == 'S') {
+      if (lastButtonState != buttonState) {
+        digitalWrite(in1, HIGH);
+        digitalWrite(in2, HIGH);
+        digitalWrite(in3, HIGH);
+        digitalWrite(in4, HIGH);
+        delay(brakeTime);
+        Stop();
+      }
+    }
+    // save the current state as the last state,
+    //for next time through the loop
+    lastButtonState = buttonState;
+  }
+}
+void brakeOff() {
+
+}
+void stopCar() {
+  // Implement your car stopping function
+  analogWrite(in1, 0);
+  analogWrite(in2, 0);
+  analogWrite(in3, 0);
+  analogWrite(in4, 0);
+}
+
+void activateBuzzer() {
+  digitalWrite(buzzerPin, HIGH);  // Turn on the buzzer
+  delay(1000);  // Buzzer sounds for 1 second
+  digitalWrite(buzzerPin, LOW);   // Turn off the buzzer
+}
+
+bool checkAlcohol() {
+  // Read alcohol sensor value
+  int alcoholValue = analogRead(MQ3);
+
+  // You may need to adjust the threshold value based on your sensor and environment
+  int alcoholThreshold = 500; // Adjust this value accordingly
+
+  // Check if alcohol level is above the threshold
+  return alcoholValue > alcoholThreshold;
+}
+
+void handleAlcoholDetection() {
+  lcd.clear();
+  lcd.print("Alcohol Detected");
+  lcd.setCursor(0, 1);
+  lcd.print("Stopping the car");
+
+  // Implement your car stopping function here
+  stopCar();
+
+  // ... (send SMS, GPS location, etc.)
+
+  delay(5000); // Display the message for 5 seconds, adjust as needed
+
+  lcd.clear();
+  lcd.print("System Ready");
+}
+
+// ... (other functions for motor control, GPS, SMS, etc.)
