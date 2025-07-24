@@ -87,10 +87,8 @@ This **embedded systems** project enhances road safety through real-time vehicle
 
 ## 📷 Demo
 
-> 🖼️ **Add Images Here**: Replace with actual images/screenshots from the `/assets` folder.  
-> 📽️ **Embed Videos**: Upload videos to YouTube and embed them using this format:
 
-![System Image Placeholder](assets/demo-image-1.jpg)
+![System Image Placeholder](assets/prototype.jpg)
 
 [![Watch the video](https://img.youtube.com/vi/YOUR_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID_HERE)
 
