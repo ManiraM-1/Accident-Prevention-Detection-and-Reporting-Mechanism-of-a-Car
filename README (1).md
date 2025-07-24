@@ -31,10 +31,12 @@ This **embedded systems** project enhances road safety through real-time vehicle
 
 ```
 [Vehicle Motion] ───> Accelerometer ───┐
-                                       ├─> Microcontroller ──> GSM/GPRS → Alerts
-[Driver Breath] ──> Alcohol Sensor ───┘
-                                        \
-                                         └─> GPS → Coordinates → SMS
+├─> Microcontroller ──> GSM/GPRS → Alerts
+[Driver Breath] ──> Alcohol Sensor ───┤
+│
+[Eye Blink] ──────> IR/Eye Sensor ────┘
+
+└─> GPS → Coordinates → SMS
 ```
 
 ---
