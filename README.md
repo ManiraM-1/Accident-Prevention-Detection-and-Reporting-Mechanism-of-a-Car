@@ -147,9 +147,8 @@ Contributions are welcome! Please:
 
 ## 📞 Contact
 
-**Maintainer**: ManiraM-1 (Maniram Tatipamula)  
-**University**: VIT‑AP, Vijayawada  
-**Connect via GitHub or email (in profile)**
+**Maintainer**: ManiraM-1 (Maniram Tatipamula)   
+**Connect via LinkedIn (in profile)**
 
 ---
 
