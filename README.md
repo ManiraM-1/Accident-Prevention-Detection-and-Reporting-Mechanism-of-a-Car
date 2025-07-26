@@ -24,6 +24,9 @@ This **embedded systems** project enhances road safety through real-time vehicle
   - Auto-dials emergency contacts if necessary.
 - **Real-Time Alerts**: Sends notifications to vehicle owner, emergency services, or guardians.
 - **Failsafe Measures**: Allows false-alarm cancellation and optional ignition cutoff on high BAC.
+- **Google Maps API**:Used Maps Static API to dynamically generate map snapshots based on live GPS coordinates. These snapshots are embedded into emergency SMS alerts to assist responders with quick visual context.
+
+
 
 ---
 
