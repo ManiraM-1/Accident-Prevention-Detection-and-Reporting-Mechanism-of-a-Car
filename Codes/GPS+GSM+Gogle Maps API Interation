@@ -1,0 +1,59 @@
+#include <SoftwareSerial.h>
+#include <TinyGPS++.h>
+
+SoftwareSerial gpsSerial(4, 3); // RX, TX for GPS
+SoftwareSerial gsmSerial(7, 8); // RX, TX for GSM
+
+TinyGPSPlus gps;
+
+String phoneNumber = "+91XXXXXXXXXX";  // Replace with emergency contact
+String googleMapsAPIKey = "YOUR_GOOGLE_MAPS_API_KEY";
+
+void setup() {
+  Serial.begin(9600);
+  gpsSerial.begin(9600);
+  gsmSerial.begin(9600);
+
+  delay(1000);
+  sendSMS("System initialized and monitoring...");
+}
+
+void loop() {
+  while (gpsSerial.available() > 0) {
+    gps.encode(gpsSerial.read());
+
+    if (gps.location.isUpdated()) {
+      float latitude = gps.location.lat();
+      float longitude = gps.location.lng();
+
+      // Simulate a threshold breach like accident or alcohol detected
+      bool emergencyDetected = true; // Replace with actual condition
+      if (emergencyDetected) {
+        sendEmergencySMS(latitude, longitude);
+        delay(60000);  // Avoid spamming
+      }
+    }
+  }
+}
+
+void sendEmergencySMS(float lat, float lon) {
+  String locationURL = "https://www.google.com/maps/search/?api=1&query=" + String(lat, 6) + "," + String(lon, 6);
+  String staticMapURL = "https://maps.googleapis.com/maps/api/staticmap?center=" + String(lat, 6) + "," + String(lon, 6) +
+                        "&zoom=17&size=400x400&markers=color:red%7C" + String(lat, 6) + "," + String(lon, 6) +
+                        "&key=" + googleMapsAPIKey;
+
+  String message = "Emergency Detected!\nLocation:\n" + locationURL + "\nMap Snapshot:\n" + staticMapURL;
+
+  sendSMS(message);
+}
+
+void sendSMS(String msg) {
+  gsmSerial.println("AT+CMGF=1");    // SMS text mode
+  delay(100);
+  gsmSerial.println("AT+CMGS=\"" + phoneNumber + "\"");
+  delay(100);
+  gsmSerial.println(msg);
+  delay(100);
+  gsmSerial.write(26); // Ctrl+Z
+  delay(1000);
+}
