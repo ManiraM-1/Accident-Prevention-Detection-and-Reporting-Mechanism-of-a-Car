@@ -93,7 +93,8 @@ This **embedded systems** project enhances road safety through real-time vehicle
 
 ![System Image Placeholder](assets/prototype.jpg)
 
-[![Watch the video](https://img.youtube.com/vi/YOUR_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=YOUR_VIDEO_ID_HERE)
+[![Watch the video](https://img.youtube.com/vi/HL6M6RP4g7w/hqdefault.jpg)](https://www.youtube.com/watch?v=HL6M6RP4g7w)
+
 
 ---
 
